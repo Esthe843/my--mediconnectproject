@@ -41,12 +41,6 @@ public class Prescription {
     @Column(length = 500)
     private String instructions;
 
-    @Column(nullable = false)
-    private boolean refillsAllowed = false;
-
-    @Column(nullable = false)
-    private int refillsRemaining = 0;
-
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;

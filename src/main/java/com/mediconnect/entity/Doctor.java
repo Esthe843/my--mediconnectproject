@@ -27,19 +27,32 @@ public class Doctor {
     private User user;
 
     @Column(nullable = false, length = 100)
-    private String specialization;
+    private String firstName;
+
+    @Column(nullable = false, length = 100)
+    private String lastName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Specialization specialization;
 
     @Column(nullable = false, length = 100)
     private String qualification;
 
     @Column(nullable = false)
-    private int yearsOfExperience;
+    private int experienceYears;
 
     @Column(nullable = false, unique = true, length = 50)
     private String licenseNumber;
 
-    @Column(length = 1000)
-    private String bio;
+    @Column(nullable = false, unique = true, length = 20)
+    private String phone;
+
+    @Column(nullable = false, unique = true, length = 150)
+    private String email;
+
+    @Column(length = 100)
+    private String hospitalName;
 
     @Column(nullable = false)
     private double consultationFee;
@@ -47,10 +60,26 @@ public class Doctor {
     @Column(nullable = false)
     private boolean available = true;
 
+    @Column(length = 1000)
+    private String about;
+
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public enum Specialization {
+        GENERAL_PHYSICIAN,
+        CARDIOLOGIST,
+        DERMATOLOGIST,
+        NEUROLOGIST,
+        PEDIATRICIAN,
+        ORTHOPEDIC,
+        GYNECOLOGIST,
+        ENT_SPECIALIST,
+        DENTIST,
+        PSYCHIATRIST
+    }
 }

@@ -7,6 +7,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "medical_records")
@@ -34,7 +36,7 @@ public class MedicalRecord {
     @JoinColumn(name = "appointment_id")
     private Appointment appointment;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 200)
     private String diagnosis;
 
     @Column(length = 1000)
@@ -48,6 +50,10 @@ public class MedicalRecord {
 
     @Column(length = 500)
     private String notes;
+
+    @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Prescription> prescriptions = new ArrayList<>();
 
     @CreatedDate
     @Column(updatable = false)

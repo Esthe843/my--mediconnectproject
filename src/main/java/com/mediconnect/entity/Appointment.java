@@ -42,6 +42,10 @@ public class Appointment {
     @Column(nullable = false)
     private AppointmentStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AppointmentType appointmentType;
+
     @Column(length = 500)
     private String reason;
 
@@ -60,6 +64,11 @@ public class Appointment {
         CONFIRMED,
         COMPLETED,
         CANCELLED,
-        NO_SHOW
+        RESCHEDULED
+    }
+
+    public enum AppointmentType {
+        ONLINE,
+        IN_PERSON
     }
 }

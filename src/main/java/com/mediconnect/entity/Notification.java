@@ -47,10 +47,11 @@ public class Notification {
     private LocalDateTime updatedAt;
 
     public enum NotificationType {
+        APPOINTMENT_BOOKED,
+        APPOINTMENT_CONFIRMED,
+        APPOINTMENT_CANCELLED,
         APPOINTMENT_REMINDER,
-        APPOINTMENT_CONFIRMATION,
-        APPOINTMENT_CANCELLATION,
-        PRESCRIPTION_READY,
+        PRESCRIPTION_ADDED,
         GENERAL
     }
 }
