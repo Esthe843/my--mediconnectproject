@@ -27,12 +27,36 @@ public class Patient {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
+    @Column(nullable = false, length = 100)
+    private String firstName;
+
+    @Column(nullable = false, length = 100)
+    private String lastName;
+
     @Column(nullable = false)
     private LocalDate dateOfBirth;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Gender gender;
+
+    @Column(nullable = false, unique = true, length = 20)
+    private String phone;
+
+    @Column(nullable = false, unique = true, length = 150)
+    private String email;
+
+    @Column(length = 1000)
+    private String address;
+
+    @Column(length = 100)
+    private String city;
+
+    @Column(length = 100)
+    private String state;
+
+    @Column(length = 20)
+    private String postalCode;
 
     @Column(length = 20)
     private String bloodGroup;
@@ -42,9 +66,6 @@ public class Patient {
 
     @Column(length = 500)
     private String medicalHistory;
-
-    @Column(length = 1000)
-    private String address;
 
     @Column(length = 200)
     private String emergencyContactName;

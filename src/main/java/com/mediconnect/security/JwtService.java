@@ -90,4 +90,14 @@ public class JwtService {
     public long getExpirationMs() {
         return jwtExpiration;
     }
+
+    public Long extractUserId(String token) {
+        return extractClaim(token, claims -> {
+            Object userId = claims.get("userId");
+            if (userId instanceof Integer) {
+                return ((Integer) userId).longValue();
+            }
+            return userId instanceof Long ? (Long) userId : null;
+        });
+    }
 }

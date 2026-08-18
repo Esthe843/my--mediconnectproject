@@ -18,6 +18,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -49,9 +52,12 @@ public class AuthController {
         );
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String jwtToken = jwtService.generateToken(userDetails);
-
         UserResponseDto userProfile = userService.login(request);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userProfile.getId());
+        claims.put("role", userProfile.getRole().name());
+        String jwtToken = jwtService.generateToken(claims, userDetails);
 
         AuthResponseDto response = AuthResponseDto.builder()
                 .token(jwtToken)
