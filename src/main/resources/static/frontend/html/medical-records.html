@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Records - MediConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container"><a class="navbar-brand" href="index.html">MediConnect</a></div>
+    </nav>
+
+    <div class="container py-4">
+        <h2>Medical Records</h2>
+        <div id="recordsList">Loading...</div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        const userId = sessionStorage.getItem('user_id');
+        if (!userId) window.location.href = 'login.html';
+
+        async function loadRecords() {
+            try {
+                const records = await api.getRecordsByPatient(userId);
+                const c = document.getElementById('recordsList');
+                if (records.length === 0) { c.innerHTML = '<p class="text-muted">No medical records found</p>'; return; }
+                c.innerHTML = records.map(r => `
+                    <div class="card mb-3">
+                        <div class="card-header bg-info text-white">Diagnosis: ${r.diagnosis}</div>
+                        <div class="card-body">
+                            <p><strong>Symptoms:</strong> ${r.symptoms || 'N/A'}</p>
+                            <p><strong>Treatment:</strong> ${r.treatment || 'N/A'}</p>
+                            <p><strong>Doctor Notes:</strong> ${r.doctorNotes || 'N/A'}</p>
+                            <p><strong>Lab Report:</strong> ${r.labReport || 'N/A'}</p>
+                            <p><strong>Date:</strong> ${r.createdAt?.split('T')[0] || 'N/A'}</p>
+                            ${r.prescriptions && r.prescriptions.length > 0 ? `
+                                <h6>Prescriptions:</h6>
+                                <ul>${r.prescriptions.map(p => `<li>${p.medicineName} - ${p.dosage} (${p.frequency}, ${p.duration} days)</li>`).join('')}</ul>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) { console.error(e); }
+        }
+        loadRecords();
+    </script>
+</body>
+</html>

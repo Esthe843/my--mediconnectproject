@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - MediConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">MediConnect Admin</a>
+            <a href="#" class="btn btn-outline-light btn-sm" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <h2>Admin Dashboard</h2>
+
+        <div class="row g-4 mb-4" id="stats">
+            <div class="col-md-2"><div class="stat-card text-center"><h3 id="sUsers">0</h3><small>Users</small></div></div>
+            <div class="col-md-2"><div class="stat-card text-center"><h3 id="sPatients">0</h3><small>Patients</small></div></div>
+            <div class="col-md-2"><div class="stat-card text-center"><h3 id="sDoctors">0</h3><small>Doctors</small></div></div>
+            <div class="col-md-3"><div class="stat-card text-center"><h3 id="sAppts">0</h3><small>Appointments</small></div></div>
+            <div class="col-md-3"><div class="stat-card text-center"><h3 id="sCompleted">0</h3><small>Completed</small></div></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-dark text-white d-flex justify-content-between">
+                <span>Users</span>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="userTable">Loading...</tbody>
+                    </table>
+                </div>
+                <button class="btn btn-sm btn-secondary" id="prevBtn" onclick="loadUsers(currentPage-1)">Previous</button>
+                <button class="btn btn-sm btn-secondary" id="nextBtn" onclick="loadUsers(currentPage+1)">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        let currentPage = 0;
+        async function loadStats() {
+            try {
+                const s = await api.adminGetStatistics();
+                document.getElementById('sUsers').textContent = s.totalUsers;
+                document.getElementById('sPatients').textContent = s.totalPatients;
+                document.getElementById('sDoctors').textContent = s.totalDoctors;
+                document.getElementById('sAppts').textContent = s.totalAppointments;
+                document.getElementById('sCompleted').textContent = s.completedAppointments;
+            } catch (e) { console.error(e); }
+        }
+        async function loadUsers(page) {
+            try {
+                currentPage = page;
+                const data = await api.adminGetUsers(page, 10);
+                const tbody = document.getElementById('userTable');
+                tbody.innerHTML = data.content.map(u => `
+                    <tr>
+                        <td>${u.id}</td>
+                        <td>${u.firstName} ${u.lastName}</td>
+                        <td>${u.email}</td>
+                        <td><span class="badge bg-primary">${u.role}</span></td>
+                        <td><span class="badge bg-${u.enabled ? 'success' : 'danger'}">${u.enabled ? 'Active' : 'Disabled'}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" onclick="toggleUser(${u.id})">Toggle</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error(e); }
+        }
+        async function toggleUser(id) { await api.adminToggleUser(id); loadUsers(currentPage); loadStats(); }
+        async function deleteUser(id) { if (confirm('Delete user?')) { await api.adminDeleteUser(id); loadUsers(currentPage); loadStats(); } }
+        loadStats(); loadUsers(0);
+        function logout() { api.clearToken(); window.location.href = 'index.html'; }
+    </script>
+</body>
+</html>

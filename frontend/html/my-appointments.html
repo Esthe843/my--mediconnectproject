@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Appointments - MediConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container"><a class="navbar-brand" href="index.html">MediConnect</a></div>
+    </nav>
+
+    <div class="container py-4">
+        <h2>My Appointments</h2>
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#upcoming">Upcoming</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#completed">Completed</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#cancelled">Cancelled</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="upcoming"><div id="upcomingList">Loading...</div></div>
+            <div class="tab-pane fade" id="completed"><div id="completedList">Loading...</div></div>
+            <div class="tab-pane fade" id="cancelled"><div id="cancelledList">Loading...</div></div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        const userId = sessionStorage.getItem('user_id');
+        if (!userId) window.location.href = 'login.html';
+
+        async function loadAppointments() {
+            try {
+                const all = await api.getAppointmentsByPatient(userId);
+                render('upcomingList', all.filter(a => ['PENDING','CONFIRMED','RESCHEDULED'].includes(a.status)));
+                render('completedList', all.filter(a => a.status === 'COMPLETED'));
+                render('cancelledList', all.filter(a => a.status === 'CANCELLED'));
+            } catch (e) { console.error(e); }
+        }
+        function render(id, list) {
+            const c = document.getElementById(id);
+            if (list.length === 0) { c.innerHTML = '<p class="text-muted">No appointments</p>'; return; }
+            c.innerHTML = list.map(a => `
+                <div class="card mb-3">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Dr. ${a.doctorName}</h5>
+                            <p class="mb-0">${a.appointmentDate} at ${a.appointmentTime} | ${a.appointmentType}</p>
+                            <span class="badge bg-${a.status === 'CONFIRMED' ? 'success' : a.status === 'CANCELLED' ? 'danger' : 'warning'}">${a.status}</span>
+                        </div>
+                        <div>
+                            ${a.status === 'PENDING' ? `<button class="btn btn-danger btn-sm" onclick="cancel(${a.id})">Cancel</button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        async function cancel(id) {
+            if (confirm('Cancel this appointment?')) {
+                await api.cancelAppointment(id);
+                loadAppointments();
+            }
+        }
+        loadAppointments();
+    </script>
+</body>
+</html>
