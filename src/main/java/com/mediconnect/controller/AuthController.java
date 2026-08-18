@@ -1,8 +1,10 @@
 package com.mediconnect.controller;
 
+import com.mediconnect.dto.AuthResponseDto;
 import com.mediconnect.dto.LoginRequestDto;
 import com.mediconnect.dto.RegisterRequestDto;
 import com.mediconnect.dto.UserResponseDto;
+import com.mediconnect.security.JwtService;
 import com.mediconnect.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,6 +12,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,9 +25,11 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @PostMapping("/register")
-    @Operation(summary = "Register a new user", description = "Creates a new user account. Passwords must match and be at least 8 characters.")
+    @Operation(summary = "Register a new user", description = "Creates a new user account.")
     public ResponseEntity<UserResponseDto> register(
             @Valid @RequestBody RegisterRequestDto request) {
         UserResponseDto response = userService.register(request);
@@ -29,10 +37,29 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Login", description = "Authenticates a user and returns their profile.")
-    public ResponseEntity<UserResponseDto> login(
+    @Operation(summary = "Login", description = "Authenticates and returns a JWT token.")
+    public ResponseEntity<AuthResponseDto> login(
             @Valid @RequestBody LoginRequestDto request) {
-        UserResponseDto response = userService.login(request);
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String jwtToken = jwtService.generateToken(userDetails);
+
+        UserResponseDto userProfile = userService.login(request);
+
+        AuthResponseDto response = AuthResponseDto.builder()
+                .token(jwtToken)
+                .role(userProfile.getRole().name())
+                .userId(userProfile.getId())
+                .expiresIn(String.valueOf(jwtService.getExpirationMs()))
+                .build();
+
         return ResponseEntity.ok(response);
     }
 
