@@ -24,7 +24,8 @@
 
         async function loadRecords() {
             try {
-                const records = await api.getRecordsByPatient(userId);
+                const patientProfile = await api.getPatientByUserId(userId);
+                const records = await api.getRecordsByPatient(patientProfile.id);
                 const c = document.getElementById('recordsList');
                 if (records.length === 0) { c.innerHTML = '<p class="text-muted">No medical records found</p>'; return; }
                 c.innerHTML = records.map(r => `

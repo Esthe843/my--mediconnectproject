@@ -33,7 +33,8 @@
 
         async function loadAppointments() {
             try {
-                const all = await api.getAppointmentsByPatient(userId);
+                const patientProfile = await api.getPatientByUserId(userId);
+                const all = await api.getAppointmentsByPatient(patientProfile.id);
                 render('upcomingList', all.filter(a => ['PENDING','CONFIRMED','RESCHEDULED'].includes(a.status)));
                 render('completedList', all.filter(a => a.status === 'COMPLETED'));
                 render('cancelledList', all.filter(a => a.status === 'CANCELLED'));

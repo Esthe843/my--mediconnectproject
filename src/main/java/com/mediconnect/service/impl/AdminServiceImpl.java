@@ -59,11 +59,11 @@ public class AdminServiceImpl implements AdminService {
                 .totalDoctors(doctorRepository.count())
                 .totalAppointments(appointmentRepository.count())
                 .completedAppointments(
-                    appointmentRepository.findByDoctorIdAndStatus(
-                        0L, com.mediconnect.entity.Appointment.AppointmentStatus.COMPLETED).size())
+                    appointmentRepository.countByStatus(
+                        com.mediconnect.entity.Appointment.AppointmentStatus.COMPLETED))
                 .cancelledAppointments(
-                    appointmentRepository.findByDoctorIdAndStatus(
-                        0L, com.mediconnect.entity.Appointment.AppointmentStatus.CANCELLED).size())
+                    appointmentRepository.countByStatus(
+                        com.mediconnect.entity.Appointment.AppointmentStatus.CANCELLED))
                 .build();
     }
 }

@@ -30,4 +30,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("doctorId") Long doctorId,
             @Param("date") LocalDate date,
             @Param("time") LocalTime time);
+
+    long countByStatus(com.mediconnect.entity.Appointment.AppointmentStatus status);
 }

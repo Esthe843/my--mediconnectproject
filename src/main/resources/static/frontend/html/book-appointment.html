@@ -71,8 +71,9 @@
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
             try {
+                const patientProfile = await api.getPatientByUserId(sessionStorage.getItem('user_id'));
                 await api.bookAppointment({
-                    patientId: parseInt(sessionStorage.getItem('user_id')),
+                    patientId: patientProfile.id,
                     doctorId: parseInt(doctorId),
                     appointmentDate: document.getElementById('appDate').value,
                     appointmentTime: document.getElementById('appTime').value + ':00',

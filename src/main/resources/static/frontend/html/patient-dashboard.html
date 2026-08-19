@@ -93,7 +93,8 @@
                 const profile = await api.getProfile(userId);
                 document.getElementById('userName').textContent = profile.firstName + ' ' + profile.lastName;
 
-                const appointments = await api.getAppointmentsByPatient(userId);
+                const patientProfile = await api.getPatientByUserId(userId);
+                const appointments = await api.getAppointmentsByPatient(patientProfile.id);
                 const upcoming = appointments.filter(a => ['PENDING','CONFIRMED'].includes(a.status));
                 const completed = appointments.filter(a => a.status === 'COMPLETED');
                 document.getElementById('upcomingCount').textContent = upcoming.length;
